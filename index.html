@@ -2,562 +2,99 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Spark — Speed Dating</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    :root {
-      --cream: #fdf6ee;
-      --blush: #e8a598;
-      --rose: #c9524a;
-      --deep: #1a0f0f;
-      --warm: #7a3f3a;
-      --gold: #d4a853;
-      --muted: #8a6f6b;
-      --card: #fff9f4;
-    }
-
-    html, body { height: 100%; }
-
-    body {
-      font-family: 'DM Sans', sans-serif;
-      background: var(--cream);
-      color: var(--deep);
-      overflow-x: hidden;
-    }
-
-    /* ── Noise texture overlay ── */
-    body::before {
-      content: '';
-      position: fixed; inset: 0;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
-      pointer-events: none; z-index: 9999;
-    }
-
-    /* ── Hero ── */
-    .hero {
-      min-height: 100vh;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      position: relative;
-    }
-
-    .hero-left {
-      background: var(--deep);
-      padding: 60px 64px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .hero-left::before {
-      content: '';
-      position: absolute;
-      width: 600px; height: 600px;
-      border-radius: 50%;
-      background: radial-gradient(circle, rgba(201,82,74,0.35) 0%, transparent 70%);
-      top: -100px; left: -100px;
-      animation: pulse 6s ease-in-out infinite;
-    }
-
-    .hero-left::after {
-      content: '';
-      position: absolute;
-      width: 400px; height: 400px;
-      border-radius: 50%;
-      background: radial-gradient(circle, rgba(212,168,83,0.2) 0%, transparent 70%);
-      bottom: -100px; right: -100px;
-      animation: pulse 8s ease-in-out infinite reverse;
-    }
-
-    @keyframes pulse {
-      0%, 100% { transform: scale(1); opacity: 0.8; }
-      50% { transform: scale(1.1); opacity: 1; }
-    }
-
-    .logo {
-      font-family: 'Playfair Display', serif;
-      font-size: 28px;
-      color: var(--blush);
-      letter-spacing: -0.5px;
-      position: relative; z-index: 1;
-    }
-
-    .logo span { color: var(--gold); font-style: italic; }
-
-    .hero-headline {
-      position: relative; z-index: 1;
-    }
-
-    .hero-headline h1 {
-      font-family: 'Playfair Display', serif;
-      font-size: clamp(48px, 5vw, 72px);
-      color: var(--cream);
-      line-height: 1.08;
-      margin-bottom: 20px;
-    }
-
-    .hero-headline h1 em {
-      font-style: italic;
-      color: var(--blush);
-    }
-
-    .hero-headline p {
-      color: rgba(253,246,238,0.55);
-      font-size: 17px;
-      line-height: 1.65;
-      font-weight: 300;
-      max-width: 340px;
-    }
-
-    .hero-stats {
-      display: flex; gap: 40px;
-      position: relative; z-index: 1;
-    }
-
-    .stat { }
-    .stat-num {
-      font-family: 'Playfair Display', serif;
-      font-size: 32px;
-      color: var(--gold);
-    }
-    .stat-label {
-      font-size: 12px;
-      color: rgba(253,246,238,0.4);
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-    }
-
-    /* ── Auth Panel ── */
-    .hero-right {
-      background: var(--card);
-      padding: 60px 64px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .auth-box {
-      width: 100%;
-      max-width: 400px;
-    }
-
-    .auth-tabs {
-      display: flex;
-      border-bottom: 2px solid #ede3db;
-      margin-bottom: 36px;
-    }
-
-    .auth-tab {
-      font-family: 'DM Sans', sans-serif;
-      font-size: 15px;
-      font-weight: 500;
-      color: var(--muted);
-      background: none;
-      border: none;
-      padding: 12px 0;
-      margin-right: 28px;
-      cursor: pointer;
-      position: relative;
-      transition: color 0.2s;
-    }
-
-    .auth-tab::after {
-      content: '';
-      position: absolute;
-      bottom: -2px; left: 0; right: 0;
-      height: 2px;
-      background: var(--rose);
-      transform: scaleX(0);
-      transition: transform 0.3s;
-    }
-
-    .auth-tab.active { color: var(--rose); }
-    .auth-tab.active::after { transform: scaleX(1); }
-
-    .auth-form { display: none; flex-direction: column; gap: 16px; }
-    .auth-form.active { display: flex; }
-
-    .field-label {
-      font-size: 12px;
-      font-weight: 500;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--warm);
-      margin-bottom: 6px;
-    }
-
-    .field-group { display: flex; flex-direction: column; }
-
-    input[type=text], input[type=email], input[type=password] {
-      font-family: 'DM Sans', sans-serif;
-      font-size: 15px;
-      padding: 13px 16px;
-      border: 1.5px solid #e0d4cc;
-      border-radius: 10px;
-      background: white;
-      color: var(--deep);
-      transition: border-color 0.2s, box-shadow 0.2s;
-      outline: none;
-    }
-
-    input:focus {
-      border-color: var(--blush);
-      box-shadow: 0 0 0 3px rgba(232,165,152,0.15);
-    }
-
-    .btn-primary {
-      font-family: 'DM Sans', sans-serif;
-      font-size: 15px;
-      font-weight: 500;
-      background: var(--rose);
-      color: white;
-      border: none;
-      border-radius: 10px;
-      padding: 14px;
-      cursor: pointer;
-      transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
-      margin-top: 4px;
-    }
-
-    .btn-primary:hover {
-      background: var(--warm);
-      box-shadow: 0 4px 16px rgba(201,82,74,0.3);
-      transform: translateY(-1px);
-    }
-
-    .btn-primary:active { transform: translateY(0); }
-
-    .auth-divider {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      color: var(--muted);
-      font-size: 13px;
-    }
-
-    .auth-divider::before, .auth-divider::after {
-      content: ''; flex: 1;
-      height: 1px;
-      background: #e0d4cc;
-    }
-
-    .btn-google {
-      font-family: 'DM Sans', sans-serif;
-      font-size: 14px;
-      font-weight: 500;
-      background: white;
-      color: var(--deep);
-      border: 1.5px solid #e0d4cc;
-      border-radius: 10px;
-      padding: 13px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      transition: border-color 0.2s, box-shadow 0.2s;
-    }
-
-    .btn-google:hover {
-      border-color: var(--blush);
-      box-shadow: 0 2px 10px rgba(0,0,0,0.07);
-    }
-
-    .error-msg {
-      background: #fff0f0;
-      border: 1px solid #f5c0bb;
-      color: var(--rose);
-      font-size: 13px;
-      padding: 10px 14px;
-      border-radius: 8px;
-      display: none;
-    }
-
-    .error-msg.show { display: block; }
-
-    /* Loading spinner */
-    .spinner {
-      display: none;
-      width: 20px; height: 20px;
-      border: 2px solid rgba(255,255,255,0.4);
-      border-top-color: white;
-      border-radius: 50%;
-      animation: spin 0.7s linear infinite;
-      margin: 0 auto;
-    }
-
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    /* ── Floating hearts ── */
-    .hearts {
-      position: fixed; inset: 0;
-      pointer-events: none; z-index: 0;
-      overflow: hidden;
-    }
-
-    .heart {
-      position: absolute;
-      font-size: 20px;
-      animation: floatUp 12s linear infinite;
-      opacity: 0;
-    }
-
-    @keyframes floatUp {
-      0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
-      10% { opacity: 0.4; }
-      90% { opacity: 0.15; }
-      100% { transform: translateY(-50px) rotate(360deg); opacity: 0; }
-    }
-
-    /* responsive */
-    @media (max-width: 768px) {
-      .hero { grid-template-columns: 1fr; }
-      .hero-left { min-height: 40vh; padding: 40px 32px; }
-      .hero-right { padding: 40px 32px; }
-      .hero-stats { gap: 24px; }
-    }
-  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Spark</title>
 </head>
 <body>
 
-<div class="hearts" id="hearts"></div>
+<h2>Login</h2>
+<form onsubmit="handleLogin(event)">
+  <input type="email" id="loginEmail" placeholder="Email" required />
+  <input type="password" id="loginPassword" placeholder="Password" required />
+  <button type="submit">Login</button>
+</form>
 
-<div class="hero">
-  <div class="hero-left">
-    <div class="logo">Spark<span>✦</span></div>
+<h2>Sign Up</h2>
+<form onsubmit="handleSignup(event)">
+  <input type="text" id="signupName" placeholder="Name" required />
+  <input type="email" id="signupEmail" placeholder="Email" required />
+  <input type="password" id="signupPassword" placeholder="Password" required />
+  <button type="submit">Sign Up</button>
+</form>
 
-    <div class="hero-headline">
-      <h1>Find your<br><em>spark</em> in<br>minutes.</h1>
-      <p>Real connections, curated matches, and live speed-dating rooms — all in one place.</p>
-    </div>
+<p id="error" style="color:red;"></p>
 
-    <div class="hero-stats">
-      <div class="stat">
-        <div class="stat-num">12k+</div>
-        <div class="stat-label">Members</div>
-      </div>
-      <div class="stat">
-        <div class="stat-num">3.4k</div>
-        <div class="stat-label">Matches made</div>
-      </div>
-      <div class="stat">
-        <div class="stat-num">98%</div>
-        <div class="stat-label">Would return</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="hero-right">
-    <div class="auth-box">
-
-      <div class="auth-tabs">
-        <button class="auth-tab active" onclick="switchTab('login')">Sign In</button>
-        <button class="auth-tab" onclick="switchTab('signup')">Create Account</button>
-      </div>
-
-      <div class="error-msg" id="authError"></div>
-
-      <!-- Login Form -->
-      <form class="auth-form active" id="loginForm" onsubmit="handleLogin(event)">
-        <div class="field-group">
-          <div class="field-label">Email</div>
-          <input type="email" id="loginEmail" placeholder="you@example.com" required />
-        </div>
-        <div class="field-group">
-          <div class="field-label">Password</div>
-          <input type="password" id="loginPassword" placeholder="••••••••" required />
-        </div>
-        <button type="submit" class="btn-primary" id="loginBtn">
-          <span id="loginText">Sign In</span>
-          <div class="spinner" id="loginSpinner"></div>
-        </button>
-        <div class="auth-divider">or</div>
-        <button type="button" class="btn-google" onclick="handleGoogle()">
-          <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
-          Continue with Google
-        </button>
-      </form>
-
-      <!-- Signup Form -->
-      <form class="auth-form" id="signupForm" onsubmit="handleSignup(event)">
-        <div class="field-group">
-          <div class="field-label">Full Name</div>
-          <input type="text" id="signupName" placeholder="Your name" required />
-        </div>
-        <div class="field-group">
-          <div class="field-label">Email</div>
-          <input type="email" id="signupEmail" placeholder="you@example.com" required />
-        </div>
-        <div class="field-group">
-          <div class="field-label">Password</div>
-          <input type="password" id="signupPassword" placeholder="Min 6 characters" required minlength="6" />
-        </div>
-        <button type="submit" class="btn-primary" id="signupBtn">
-          <span id="signupText">Create Account</span>
-          <div class="spinner" id="signupSpinner"></div>
-        </button>
-        <div class="auth-divider">or</div>
-        <button type="button" class="btn-google" onclick="handleGoogle()">
-          <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
-          Continue with Google
-        </button>
-      </form>
-
-    </div>
-  </div>
-</div>
-
-<!-- Firebase SDKs -->
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword,
-           GoogleAuthProvider, signInWithPopup, onAuthStateChanged, updateProfile }
-    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-  import { getFirestore, doc, setDoc, getDoc, serverTimestamp }
-    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import {
+  getAuth,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  updateProfile
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-  // ── YOUR FIREBASE CONFIG ──────────────────────────────────────────────────
-  // After creating your Firebase project, paste your config object here:
-  const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_PROJECT.firebaseapp.com",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_PROJECT.appspot.com",
-    messagingSenderId: "YOUR_SENDER_ID",
-    appId: "YOUR_APP_ID"
+// 🔥 REPLACE THIS WITH YOUR REAL CONFIG
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  projectId: "YOUR_PROJECT_ID",
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
+function showError(msg) {
+  document.getElementById("error").textContent = msg;
+}
+
+function friendlyError(code) {
+  const map = {
+    "auth/user-not-found": "No account found.",
+    "auth/wrong-password": "Wrong password.",
+    "auth/email-already-in-use": "Email already used.",
+    "auth/invalid-email": "Invalid email.",
+    "auth/weak-password": "Password too weak.",
   };
-  // ─────────────────────────────────────────────────────────────────────────
+  return map[code] || code;
+}
 
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getFirestore(app);
-  const googleProvider = new GoogleAuthProvider();
+window.handleLogin = async (e) => {
+  e.preventDefault();
+  const email = loginEmail.value.trim();
+  const pass = loginPassword.value.trim();
 
-  // If already logged in → go to app
-  onAuthStateChanged(auth, user => {
-    if (user) window.location.href = 'pages/app.html';
-  });
-
-  async function ensureProfile(user, name) {
-    const ref = doc(db, 'users', user.uid);
-    const snap = await getDoc(ref);
-    if (!snap.exists()) {
-      await setDoc(ref, {
-        uid: user.uid,
-        displayName: name || user.displayName || 'Spark User',
-        email: user.email,
-        photoURL: user.photoURL || '',
-        bio: '',
-        age: '',
-        interests: [],
-        lookingFor: '',
-        createdAt: serverTimestamp()
-      });
-    }
+  if (!email || !pass) {
+    showError("Fill all fields.");
+    return;
   }
 
-  function setLoading(form, on) {
-    const btn = document.getElementById(form + 'Btn');
-    const txt = document.getElementById(form + 'Text');
-    const spin = document.getElementById(form + 'Spinner');
-    btn.disabled = on;
-    txt.style.display = on ? 'none' : 'inline';
-    spin.style.display = on ? 'block' : 'none';
+  try {
+    await signInWithEmailAndPassword(auth, email, pass);
+    window.location.href = "app.html";
+  } catch (err) {
+    showError(friendlyError(err.code));
+  }
+};
+
+window.handleSignup = async (e) => {
+  e.preventDefault();
+  const name = signupName.value.trim();
+  const email = signupEmail.value.trim();
+  const pass = signupPassword.value.trim();
+
+  if (!name || !email || !pass) {
+    showError("Fill all fields.");
+    return;
   }
 
-  function showError(msg) {
-    const el = document.getElementById('authError');
-    el.textContent = msg;
-    el.classList.add('show');
-    setTimeout(() => el.classList.remove('show'), 4000);
+  try {
+    const cred = await createUserWithEmailAndPassword(auth, email, pass);
+    await updateProfile(cred.user, { displayName: name });
+    window.location.href = "app.html";
+  } catch (err) {
+    showError(friendlyError(err.code));
   }
-
-  window.handleLogin = async (e) => {
-    e.preventDefault();
-    setLoading('login', true);
-    const email = document.getElementById('loginEmail').value;
-    const pass = document.getElementById('loginPassword').value;
-    try {
-      const cred = await signInWithEmailAndPassword(auth, email, pass);
-      await ensureProfile(cred.user, '');
-      window.location.href = 'pages/app.html';
-    } catch(err) {
-      showError(friendlyError(err.code));
-      setLoading('login', false);
-    }
-  };
-
-  window.handleSignup = async (e) => {
-    e.preventDefault();
-    setLoading('signup', true);
-    const name = document.getElementById('signupName').value;
-    const email = document.getElementById('signupEmail').value;
-    const pass = document.getElementById('signupPassword').value;
-    try {
-      const cred = await createUserWithEmailAndPassword(auth, email, pass);
-      await updateProfile(cred.user, { displayName: name });
-      await ensureProfile(cred.user, name);
-      window.location.href = 'pages/app.html';
-    } catch(err) {
-      showError(friendlyError(err.code));
-      setLoading('signup', false);
-    }
-  };
-
-  window.handleGoogle = async () => {
-    try {
-      const cred = await signInWithPopup(auth, googleProvider);
-      await ensureProfile(cred.user, '');
-      window.location.href = 'pages/app.html';
-    } catch(err) {
-      showError(friendlyError(err.code));
-    }
-  };
-
-  function friendlyError(code) {
-    const map = {
-      'auth/user-not-found': 'No account found with that email.',
-      'auth/wrong-password': 'Incorrect password. Try again.',
-      'auth/email-already-in-use': 'An account with that email already exists.',
-      'auth/invalid-email': 'Please enter a valid email address.',
-      'auth/weak-password': 'Password must be at least 6 characters.',
-      'auth/popup-closed-by-user': 'Google sign-in was cancelled.',
-    };
-    return map[code] || 'Something went wrong. Please try again.';
-  }
-</script>
-
-<script>
-  // Tab switching
-  window.switchTab = (tab) => {
-    document.querySelectorAll('.auth-tab').forEach((t,i) => {
-      t.classList.toggle('active', (tab === 'login' && i === 0) || (tab === 'signup' && i === 1));
-    });
-    document.getElementById('loginForm').classList.toggle('active', tab === 'login');
-    document.getElementById('signupForm').classList.toggle('active', tab === 'signup');
-    document.getElementById('authError').classList.remove('show');
-  };
-
-  // Floating hearts
-  const heartsEl = document.getElementById('hearts');
-  const emojis = ['♥','✦','★','❋','✿'];
-  for (let i = 0; i < 18; i++) {
-    const h = document.createElement('div');
-    h.className = 'heart';
-    h.textContent = emojis[Math.floor(Math.random() * emojis.length)];
-    h.style.left = Math.random() * 100 + 'vw';
-    h.style.animationDelay = Math.random() * 12 + 's';
-    h.style.animationDuration = (10 + Math.random() * 10) + 's';
-    h.style.fontSize = (14 + Math.random() * 18) + 'px';
-    h.style.color = ['#e8a598','#d4a853','#c9524a','#f5d5c0'][Math.floor(Math.random()*4)];
-    heartsEl.appendChild(h);
-  }
+};
 </script>
 
 </body>
