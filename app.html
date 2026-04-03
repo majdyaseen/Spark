@@ -1,68 +1,57 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8">
-<title>Spark App</title>
-
-<style>
-body {
-  margin:0;
-  font-family:sans-serif;
-  display:flex;
-}
-
-.sidebar {
-  width:220px;
-  background:#1a0f0f;
-  color:white;
-  padding:20px;
-  height:100vh;
-}
-
-.main {
-  flex:1;
-  padding:20px;
-}
-
-.card {
-  border:1px solid #ddd;
-  padding:15px;
-  margin:10px 0;
-  border-radius:10px;
-}
-</style>
+<link rel="stylesheet" href="style.css">
 </head>
 
-<body>
+<body class="center">
 
-<div class="sidebar">
-<h2>Spark</h2>
-<p id="userName"></p>
-<button onclick="logout()">Logout</button>
+<div class="card">
+<h2 id="name"></h2>
+<p id="bio"></p>
+
+<button class="nope" onclick="skip()">Skip</button>
+<button class="like" onclick="like()">Like</button>
 </div>
 
-<div class="main">
-<h1>Discover</h1>
+<script type="module">
+import { auth, db } from "./firebase.js";
+import {
+collection, getDocs, doc, updateDoc, arrayUnion
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-<div class="card">👩 Sarah, 22 - Loves coffee</div>
-<div class="card">👨 Alex, 25 - Gym addict</div>
-<div class="card">👩 Lina, 21 - Photography</div>
+let users = [];
+let current = 0;
 
-</div>
+const snap = await getDocs(collection(db,"users"));
+snap.forEach(doc=> users.push({id:doc.id,...doc.data()}));
 
-<script>
-const user = localStorage.getItem("user");
-
-if(!user){
-  window.location = "index.html";
+function show(){
+  const u = users[current];
+  document.getElementById("name").innerText = u.name;
+  document.getElementById("bio").innerText = u.bio;
 }
 
-document.getElementById("userName").innerText = "Hi " + user;
+window.like = async ()=>{
+  const target = users[current];
 
-function logout(){
-  localStorage.removeItem("user");
-  window.location = "index.html";
+  await updateDoc(doc(db,"users",auth.currentUser.uid),{
+    likes: arrayUnion(target.id)
+  });
+
+  alert("Liked!");
+  next();
+};
+
+window.skip = ()=> next();
+
+function next(){
+  current++;
+  if(current>=users.length) current=0;
+  show();
 }
+
+show();
 </script>
 
 </body>
