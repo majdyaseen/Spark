@@ -1,13 +1,28 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>App</title>
+<meta charset="UTF-8" />
+<title>Spark Dashboard</title>
+
+<style>
+body { margin:0; font-family:sans-serif; display:flex; }
+.sidebar { width:200px; background:#1a0f0f; color:white; padding:20px; }
+.main { flex:1; padding:20px; }
+button { padding:10px; margin-top:10px; }
+</style>
 </head>
+
 <body>
 
-<h1>Welcome</h1>
+<div class="sidebar">
+<h2>Spark</h2>
 <button onclick="logout()">Logout</button>
+</div>
+
+<div class="main">
+<h1>Welcome to Spark</h1>
+<p>Your app is now working.</p>
+</div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
@@ -17,25 +32,24 @@ import {
   signOut
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-// 🔥 SAME CONFIG HERE
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
+  apiKey: "AIzaSyB6vXfEXAEvf3MHQQtUBswU-wNG0cCBsFQ",
+  authDomain: "spark-b1dc2.firebaseapp.com",
+  projectId: "spark-b1dc2"
 };
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
-onAuthStateChanged(auth, (user) => {
-  if (!user) {
-    window.location.href = "index.html";
+onAuthStateChanged(auth,(user)=>{
+  if(!user){
+    window.location.href="index.html";
   }
 });
 
-window.logout = async () => {
+window.logout = async ()=>{
   await signOut(auth);
-  window.location.href = "index.html";
+  window.location.href="index.html";
 };
 </script>
 
