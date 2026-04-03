@@ -96,58 +96,38 @@ button {
 </div>
 </div>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import {
-  getAuth,
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
-  updateProfile
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyB6vXfEXAEvf3MHQQtUBswU-wNG0cCBsFQ",
-  authDomain: "spark-b1dc2.firebaseapp.com",
-  projectId: "spark-b1dc2"
-};
-
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-
+<script>
 function error(msg){
   document.getElementById("error").innerText = msg;
 }
 
-function mapErr(code){
-  return {
-    "auth/user-not-found":"No account found",
-    "auth/wrong-password":"Wrong password",
-    "auth/email-already-in-use":"Email already used",
-    "auth/invalid-email":"Invalid email",
-    "auth/weak-password":"Weak password",
-    "auth/configuration-not-found":"Enable Email/Password in Firebase"
-  }[code] || code;
-}
-
-window.login = async(e)=>{
+window.login = (e)=>{
   e.preventDefault();
-  try{
-    await signInWithEmailAndPassword(auth,email.value,password.value);
-    window.location="app.html";
-  }catch(err){
-    error(mapErr(err.code));
+
+  const email = email.value.trim();
+  const pass = password.value.trim();
+
+  if(!email || !pass){
+    error("Enter something bro");
+    return;
   }
+
+  localStorage.setItem("user", email);
+  window.location = "app.html";
 };
 
-window.signup = async(e)=>{
+window.signup = (e)=>{
   e.preventDefault();
-  try{
-    const cred = await createUserWithEmailAndPassword(auth,email2.value,password2.value);
-    await updateProfile(cred.user,{displayName:name.value});
-    window.location="app.html";
-  }catch(err){
-    error(mapErr(err.code));
+
+  const name = document.getElementById("name").value.trim();
+
+  if(!name){
+    error("At least put a name");
+    return;
   }
+
+  localStorage.setItem("user", name);
+  window.location = "app.html";
 };
 </script>
 
