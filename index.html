@@ -1,22 +1,68 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Spark — Speed Dating</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spark</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display&family=DM+Sans&display=swap" rel="stylesheet">
 
 <style>
-body { font-family: 'DM Sans', sans-serif; margin:0; display:flex; height:100vh; }
-.left { flex:1; background:#1a0f0f; color:white; padding:60px; }
-.right { flex:1; display:flex; justify-content:center; align-items:center; }
+body {
+  margin:0;
+  font-family:'DM Sans', sans-serif;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  height:100vh;
+}
 
-.auth-box { width:320px; }
-input { width:100%; padding:10px; margin:10px 0; }
-button { width:100%; padding:12px; background:#c9524a; color:white; border:none; cursor:pointer; }
+.left {
+  background:#1a0f0f;
+  color:white;
+  padding:60px;
+}
 
-.error { color:red; margin-bottom:10px; }
+.left h1 {
+  font-family:'Playfair Display', serif;
+  font-size:60px;
+}
+
+.left p {
+  opacity:0.6;
+}
+
+.right {
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+
+.box {
+  width:320px;
+}
+
+input {
+  width:100%;
+  padding:12px;
+  margin:8px 0;
+  border-radius:8px;
+  border:1px solid #ccc;
+}
+
+button {
+  width:100%;
+  padding:12px;
+  background:#c9524a;
+  color:white;
+  border:none;
+  border-radius:8px;
+  cursor:pointer;
+}
+
+.error {
+  color:red;
+  margin-bottom:10px;
+}
 </style>
 </head>
 
@@ -28,22 +74,22 @@ button { width:100%; padding:12px; background:#c9524a; color:white; border:none;
 </div>
 
 <div class="right">
-<div class="auth-box">
+<div class="box">
 
 <div id="error" class="error"></div>
 
 <h3>Login</h3>
-<form onsubmit="handleLogin(event)">
-<input type="email" id="loginEmail" placeholder="Email" required />
-<input type="password" id="loginPassword" placeholder="Password" required />
+<form onsubmit="login(event)">
+<input id="email" type="email" placeholder="Email">
+<input id="password" type="password" placeholder="Password">
 <button>Login</button>
 </form>
 
 <h3>Sign Up</h3>
-<form onsubmit="handleSignup(event)">
-<input type="text" id="signupName" placeholder="Name" required />
-<input type="email" id="signupEmail" placeholder="Email" required />
-<input type="password" id="signupPassword" placeholder="Password" required />
+<form onsubmit="signup(event)">
+<input id="name" type="text" placeholder="Full Name">
+<input id="email2" type="email" placeholder="Email">
+<input id="password2" type="password" placeholder="Password">
 <button>Create Account</button>
 </form>
 
@@ -62,65 +108,45 @@ import {
 const firebaseConfig = {
   apiKey: "AIzaSyB6vXfEXAEvf3MHQQtUBswU-wNG0cCBsFQ",
   authDomain: "spark-b1dc2.firebaseapp.com",
-  projectId: "spark-b1dc2"
+  projectId: "spark-b1dc2",
 };
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
-function showError(msg){
+function error(msg){
   document.getElementById("error").innerText = msg;
 }
 
-function friendlyError(code){
-  const map = {
-    "auth/user-not-found":"No account found.",
-    "auth/wrong-password":"Incorrect password.",
-    "auth/email-already-in-use":"Email already exists.",
-    "auth/invalid-email":"Invalid email.",
-    "auth/weak-password":"Password must be at least 6 characters.",
-    "auth/invalid-credential":"Invalid login credentials."
-  };
-  return map[code] || code;
+function mapErr(code){
+  return {
+    "auth/user-not-found":"No account found",
+    "auth/wrong-password":"Wrong password",
+    "auth/email-already-in-use":"Email already used",
+    "auth/invalid-email":"Invalid email",
+    "auth/weak-password":"Weak password",
+    "auth/configuration-not-found":"Enable Email/Password in Firebase"
+  }[code] || code;
 }
 
-window.handleLogin = async (e)=>{
+window.login = async(e)=>{
   e.preventDefault();
-
-  const email = loginEmail.value.trim();
-  const pass = loginPassword.value.trim();
-
-  if(!email || !pass){
-    showError("Please fill all fields.");
-    return;
-  }
-
   try{
-    await signInWithEmailAndPassword(auth,email,pass);
-    window.location.href="app.html";
+    await signInWithEmailAndPassword(auth,email.value,password.value);
+    window.location="app.html";
   }catch(err){
-    showError(friendlyError(err.code));
+    error(mapErr(err.code));
   }
 };
 
-window.handleSignup = async (e)=>{
+window.signup = async(e)=>{
   e.preventDefault();
-
-  const name = signupName.value.trim();
-  const email = signupEmail.value.trim();
-  const pass = signupPassword.value.trim();
-
-  if(!name || !email || !pass){
-    showError("Please fill all fields.");
-    return;
-  }
-
   try{
-    const cred = await createUserWithEmailAndPassword(auth,email,pass);
-    await updateProfile(cred.user,{displayName:name});
-    window.location.href="app.html";
+    const cred = await createUserWithEmailAndPassword(auth,email2.value,password2.value);
+    await updateProfile(cred.user,{displayName:name.value});
+    window.location="app.html";
   }catch(err){
-    showError(friendlyError(err.code));
+    error(mapErr(err.code));
   }
 };
 </script>
