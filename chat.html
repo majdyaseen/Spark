@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<div id="messages"></div>
+<input id="msg">
+<button onclick="send()">Send</button>
+
+<script type="module">
+import { db, auth } from "./firebase.js";
+import {
+collection, addDoc, onSnapshot
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const chatRef = collection(db,"messages");
+
+onSnapshot(chatRef,(snap)=>{
+  document.getElementById("messages").innerHTML="";
+  snap.forEach(doc=>{
+    const m = doc.data();
+    document.getElementById("messages").innerHTML += `<p>${m.text}</p>`;
+  });
+});
+
+window.send = async ()=>{
+  await addDoc(chatRef,{
+    text: msg.value,
+    user: auth.currentUser.uid
+  });
+};
+</script>
+
+</body>
+</html>
