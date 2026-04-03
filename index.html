@@ -1,133 +1,54 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Spark</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display&family=DM+Sans&display=swap" rel="stylesheet">
-
-<style>
-body {
-  margin:0;
-  font-family:'DM Sans', sans-serif;
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  height:100vh;
-}
-
-.left {
-  background:#1a0f0f;
-  color:white;
-  padding:60px;
-}
-
-.left h1 {
-  font-family:'Playfair Display', serif;
-  font-size:60px;
-}
-
-.left p {
-  opacity:0.6;
-}
-
-.right {
-  display:flex;
-  justify-content:center;
-  align-items:center;
-}
-
-.box {
-  width:320px;
-}
-
-input {
-  width:100%;
-  padding:12px;
-  margin:8px 0;
-  border-radius:8px;
-  border:1px solid #ccc;
-}
-
-button {
-  width:100%;
-  padding:12px;
-  background:#c9524a;
-  color:white;
-  border:none;
-  border-radius:8px;
-  cursor:pointer;
-}
-
-.error {
-  color:red;
-  margin-bottom:10px;
-}
-</style>
+<link rel="stylesheet" href="style.css">
 </head>
 
-<body>
+<body class="center">
 
-<div class="left">
-<h1>Find your spark in minutes</h1>
-<p>Real connections, curated matches, and live speed dating rooms, all in one place.</p>
-</div>
+<div class="card">
+<h2>Spark</h2>
 
-<div class="right">
-<div class="box">
-
-<div id="error" class="error"></div>
-
-<h3>Login</h3>
-<form onsubmit="login(event)">
-<input id="email" type="email" placeholder="Email">
+<input id="name" placeholder="Name">
+<input id="email" placeholder="Email">
 <input id="password" type="password" placeholder="Password">
-<button>Login</button>
-</form>
 
-<h3>Sign Up</h3>
-<form onsubmit="signup(event)">
-<input id="name" type="text" placeholder="Full Name">
-<input id="email2" type="email" placeholder="Email">
-<input id="password2" type="password" placeholder="Password">
-<button>Create Account</button>
-</form>
+<button onclick="signup()">Sign Up</button>
+<button onclick="login()">Login</button>
 
-</div>
+<p id="err"></p>
 </div>
 
-<script>
-function error(msg){
-  document.getElementById("error").innerText = msg;
-}
+<script type="module">
+import { auth, db } from "./firebase.js";
+import {
+createUserWithEmailAndPassword,
+signInWithEmailAndPassword,
+updateProfile
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-window.login = (e)=>{
-  e.preventDefault();
+import { setDoc, doc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-  const email = email.value.trim();
-  const pass = password.value.trim();
+window.signup = async ()=>{
+  const name = name.value;
+  const email = email.value;
+  const pass = password.value;
 
-  if(!email || !pass){
-    error("Enter something bro");
-    return;
-  }
+  const cred = await createUserWithEmailAndPassword(auth,email,pass);
+  await updateProfile(cred.user,{displayName:name});
 
-  localStorage.setItem("user", email);
-  window.location = "app.html";
+  await setDoc(doc(db,"users",cred.user.uid),{
+    name,
+    bio:"",
+    likes:[]
+  });
+
+  location="app.html";
 };
 
-window.signup = (e)=>{
-  e.preventDefault();
-
-  const name = document.getElementById("name").value.trim();
-
-  if(!name){
-    error("At least put a name");
-    return;
-  }
-
-  localStorage.setItem("user", name);
-  window.location = "app.html";
+window.login = async ()=>{
+  await signInWithEmailAndPassword(auth,email.value,password.value);
+  location="app.html";
 };
 </script>
 
